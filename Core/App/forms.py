@@ -38,27 +38,38 @@ class CandidateForm(forms.ModelForm):
   firstname = forms.CharField(
     label="First Name", min_length=3 , max_length=50,
     validators=[alpha_validator],
-    widget=forms.TextInput(attrs={'placeholder':"First Name"})
+    widget=forms.TextInput(attrs={'placeholder':"First Name",
+                                  'style':'text-transform:capitalize'})
     
   )
   
   lastname = forms.CharField(
     label="Last Name", min_length=3 , max_length=50,
     validators=[alpha_validator],
-    widget=forms.TextInput(attrs={'placeholder':"Last Name"})
+    widget=forms.TextInput(attrs={'placeholder':"Last Name",
+                                  'style':'text-transform:capitalize'})
   )
   
   job = Uppercase(
     label="Job Code",
     min_length=5,
     max_length=5, 
-    widget= forms.TextInput(attrs={'placeholder':'Example: FR-22'})
+    widget= forms.TextInput(attrs={'placeholder':'Example: FR-22',
+                                   'style':'text-transform:uppercase'})
   )
   
   email = Lowercase(
     label='Email Address' , min_length=6,
     validators=[email_validator],
-    widget=forms.TextInput(attrs={'placeholder':'Email'})
+    widget=forms.TextInput(attrs={'placeholder':'Email',
+                                  'style':'text-transform:lowercase'})
+  )
+  phone = forms.CharField(
+    required=True,
+    validators=[phone_validator],
+    widget=forms.TextInput(
+      attrs={'placeholder':"Phone number "}
+    )
   )
   
   age = forms.IntegerField(
@@ -79,13 +90,24 @@ class CandidateForm(forms.ModelForm):
     widget=forms.Textarea(attrs={'placeholder':"Write about you.", 'rows':9})
   )
   
-  phone = forms.CharField(
-    required=True,
-    validators=[phone_validator],
-    widget=forms.TextInput(
-      attrs={'placeholder':"Phone number "}
+  
+  file = forms.FileField(
+    label="Resume",
+    widget = forms.ClearableFileInput(
+      attrs={
+        'style':'font-size:16px'
+      }
     )
   )
+  photo = forms.ImageField(
+    label= "Photo",
+    widget = forms.ClearableFileInput(
+      attrs={
+        'style':'font-size:16px'
+      }
+    )
+  )
+  
   
   class Meta:
     model = Candidate
@@ -118,10 +140,33 @@ class CandidateForm(forms.ModelForm):
         attrs={
           'class':'btn-check'
         }
-      ),
-      
-      
-      
-      
+      ),  
     }
+    
+  def clean_email(self):
+    email = self.cleaned_data.get('email')
+    print("clean_email method is called!")  # Print statement for debugging
+    if Candidate.objects.filter(email=email).exists():
+        raise forms.ValidationError(f"Denied! {email} is already registered.")
+    return email
+  
+  def clean_age(self):
+    age = self.cleaned_data.get('age')
+    if age < 18 or age > 60:
+        raise forms.ValidationError("Please ensure your age is between 18 and 60 to proceed.")
+    return age
+  
+  def clean_job(self):
+    job = self.cleaned_data.get('job')
+    if job == "FR-22" or job == "BE-36" or job == "FU-69":
+      return job
+    else:
+      raise forms.ValidationError("Please ensure valid job code to proceed.")
+    
+  # ====== To Concatenate the F-name and L-name ======== #
+  def name(obj):
+    return "%s %s" % (obj.firstname, obj.lastname)
+
+
+        
     

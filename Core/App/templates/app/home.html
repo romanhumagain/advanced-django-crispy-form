@@ -8,7 +8,7 @@
   <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags}}{% endif %}">{{ message }}</div>
 {% endfor %}
 {% endif %}
-<form method="post" class="card p-3 mt-3" autocomplete="off" novalidate>
+<form method="post" class="card p-3 mt-3" autocomplete="off" novalidate enctype="multipart/form-data">
 {% csrf_token %}
 
 <div class="card shadow-sm p-3 my-2 text-center border-secondary">
@@ -51,7 +51,10 @@ Frontend: FR-22 &nbsp;|&nbsp; Backend: BE-36 &nbsp;|&nbsp; Fullstack: FU-69
 {{ form.experience|as_crispy_field }}
 <hr>
 {{ form.message|as_crispy_field }}
+{{ form.file|as_crispy_field }}
+{{ form.photo|as_crispy_field }}
 
+<br>
 <button type="submit" class=" btn btn-secondary mt-3" style="width: 150px;">Submit</button>
 </form>
 </div>
